@@ -60,6 +60,7 @@ def get_image_from_link(url, timeframe, s_range, retries=3):
         select_Range_element = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.ID, "d"))
         )
+        
         h3_element = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, "//h3[@style='margin: 0px;margin-left: 5px;font-size:20px']"))
         )
@@ -67,7 +68,7 @@ def get_image_from_link(url, timeframe, s_range, retries=3):
         # Extract the text of the <h3> element
         company_name = h3_element.text
         print(f"Company Name: {company_name}")
-        
+
         timeframe_mapping = {
         "1 day": "1",
         "2 days": "2",
