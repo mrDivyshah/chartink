@@ -158,3 +158,13 @@ def get_image_from_link(url, timeframe, s_range, retries=3):
 
     finally:
         driver.quit()
+def main(Screener_url, Period, Range):
+    driver = web_driver()
+    driver.get(Screener_url)
+    results = get_url_and_index(driver)
+    for url in results:
+        image_blob = get_image_from_link(url, Period, Range)
+        img_data = base64.b64decode(image_blob)
+        with open("image.png", "wb") as img_file:
+            img_file.write(img_data)
+        display(Image(filename="image.png"))
