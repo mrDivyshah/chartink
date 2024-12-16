@@ -187,6 +187,7 @@ def get_image_from_link(url, timeframe, s_range, retries=3):
 
     finally:
         driver.quit()
+        
 def main(Screener_url, Period, Range):
     driver = web_driver()
     driver.get(Screener_url)
@@ -223,6 +224,6 @@ def main(Screener_url, Period, Range):
 
       # display(Image(filename="image.png"))
     c.save()
+    output.clear()
     files.download(output_pdf)
     driver.quit()
-    output.clear()
