@@ -1,0 +1,20 @@
+# **How to Run This Program**
+Follow these steps to execute the program:
+
+1. Start the Connection
+ * Click the Connect button located at the top right corner of the interface.
+2. Run the Scripts
+ * Execute the First Script and Second Script one by one.
+ * Make sure that each script runs successfully before moving to the next step.
+ * If you encounter any issues or errors, take a screenshot and send it to me for assistance.
+3. Fill the Form
+  * After successfully running the first and second scripts, fill out the form as required.
+  * Ensure that all necessary details are provided in the form before proceeding.
+4. Execute the Program
+  * Once the form is filled, execute the final script to run the program.
+
+
+
+> ⚠️ Important Notes
+1. **⚡ Code Execution Time:** Each iteration will take 2 to 3 seconds to complete.
+2. **⏳ Patience Required:** The program may take some time to execute fully, so please be patient.
