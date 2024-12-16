@@ -225,3 +225,4 @@ def main(Screener_url, Period, Range):
     c.save()
     files.download(output_pdf)
     driver.quit()
+    output.clear()
