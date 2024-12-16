@@ -1,9 +1,4 @@
-# @title Step 1
-!pip install selenium
-!apt-get update
-!apt-get install -y chromium-browser
-!apt-get install chromium chromium-driver
-!pip install webdriver-manager Pillow reportlab
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
