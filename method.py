@@ -7,8 +7,10 @@ def is_colab():
 subprocess.run(["pip", "install", "selenium"], check=True)
 subprocess.run(["apt-get", "update"], check=True)
 subprocess.run(["apt-get", "install", "-y", "chromium-browser"], check=True)
+
 subprocess.run(["apt-get", "install", "-y", "chromium"], check=True)
 subprocess.run(["apt-get", "install", "-y", "chromium-driver"], check=True)
+
 subprocess.run(["pip", "install", "webdriver-manager", "Pillow", "reportlab"], check=True)
 subprocess.run(["pip", "install", "python-telegram-bot"], check=True)
 from google.colab import output, files
