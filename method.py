@@ -4,22 +4,15 @@ import subprocess
 # Function to check if running in Google Colab
 def is_colab():
     return "google.colab" in sys.modules
-    
-print("Running in Google Colab")
-# Install selenium
 subprocess.run(["pip", "install", "selenium"], check=True)
-# Update package list
 subprocess.run(["apt-get", "update"], check=True)
-# Install Chromium browser
 subprocess.run(["apt-get", "install", "-y", "chromium-browser"], check=True)
-# Install Chromium and Chromium Driver
 subprocess.run(["apt-get", "install", "-y", "chromium", "chromium-driver"], check=True)
 # Install additional Python packages
 subprocess.run(["pip", "install", "webdriver-manager", "Pillow", "reportlab"], check=True)
 subprocess.run(["pip", "install", "python-telegram-bot"], check=True)
 from google.colab import output, files
 import os
-
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
