@@ -241,21 +241,17 @@ def process_link(url, Period, Range, form_data):
 
 # Main function
 async def main(Screener_url, Period, Range, form_data):
-    
+
     driver = web_driver()
     driver.get(Screener_url)
     results = get_url_and_index(driver)
-    if is_colab():
-      from google.colab import output, files
-      output.clear()
     print("Total No of URLs is " + str(len(results)))
     driver.quit()
 
     base_path = "/content"
     if not is_colab():
         os.makedirs(base_path, exist_ok=True)
-    print("Create Canvas")
-    current_datetime = ist_time.strftime('%Y-%m-%d %H:%M:%S')
+    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     output_pdf = f"/content/screener_images_{current_datetime}.pdf"
     c = canvas.Canvas(output_pdf, pagesize=A4)
     a4_width, a4_height = A4
@@ -264,9 +260,7 @@ async def main(Screener_url, Period, Range, form_data):
     num_threads = min(len(results), 10)
 
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
-        print("Creating New Processing To Sub-Process....")
         futures = [executor.submit(process_link, url, Period, Range, form_data) for url in results]
-        print("message: New Sub-Process Work successful")
         for future in as_completed(futures, timeout=300):
           try:
             company_name, image = future.result()
@@ -277,7 +271,6 @@ async def main(Screener_url, Period, Range, form_data):
                 print(company_name)
                 temp_image_path = f"/content/temp_image_{company_name}.png"
                 image.save(temp_image_path)
-                display(image)
                 image_ratio = image.width / image.height
                 a4_ratio = a4_width / a4_height
                 if image_ratio > a4_ratio:
@@ -304,11 +297,11 @@ async def main(Screener_url, Period, Range, form_data):
         output.clear()
         # Markdown message
         markdown_message = f"""
-        **URL**: {Screener_url}
         **Date**: {current_datetime}
         """
-        await send_pdf_with_markdown(874628419, output_pdf, markdown_message)
+        await send_pdf_with_markdown(2003227678, output_pdf, markdown_message)
         return output_pdf
-          
+
     else:
         print(f"PDF saved at {output_pdf}")
+
