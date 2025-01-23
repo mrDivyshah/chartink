@@ -30,10 +30,13 @@ import platform
 import requests
 from io import BytesIO
 from datetime import datetime
+import pytz
 from PIL import Image as PILImage
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from concurrent.futures import ThreadPoolExecutor, as_completed
+ist_timezone = pytz.timezone('Asia/Kolkata')
+ist_time = datetime.now(ist_timezone)
 def is_colab():
     return "google.colab" in sys.modules
 
@@ -252,7 +255,7 @@ async def main(Screener_url, Period, Range, form_data):
     if not is_colab():
         os.makedirs(base_path, exist_ok=True)
     print("Create Canvas")
-    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_datetime = ist_time.strftime('%Y-%m-%d %H:%M:%S')
     output_pdf = f"/content/screener_images_{current_datetime}.pdf"
     c = canvas.Canvas(output_pdf, pagesize=A4)
     a4_width, a4_height = A4
