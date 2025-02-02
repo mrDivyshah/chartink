@@ -73,7 +73,7 @@ def get_url_and_index(driver):
                 if 'fundamentals' in href:
                     href = href.replace('fundamentals', 'stocks')
                     full_link = f"https://chartink.com{href}"
-                    print(str(index) + "  " + full_link)
+                    # print(str(index) + "  " + full_link)
                     index += 1
                     results.append(full_link)
 
