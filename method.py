@@ -101,6 +101,7 @@ async def send_pdf_with_markdown(chat_id = 2003227678, pdf_path = " ", MARKDOWN_
             parse_mode=ParseMode.MARKDOWN
         )
 
+
 def get_image_from_link(driver, url, timeframe, s_range, form_data, retries=3):
     """
     Fetch an image from the given link after dynamically updating form inputs.
@@ -114,8 +115,8 @@ def get_image_from_link(driver, url, timeframe, s_range, form_data, retries=3):
     :return: Tuple of company name and image data in base64, or (None, None) if failed
     """
     driver.get(url)
-
-    try:        
+    time.sleep(2)
+    try:
         form_data_json = json.dumps(form_data)
 
         form_js_template = """
@@ -149,28 +150,25 @@ def get_image_from_link(driver, url, timeframe, s_range, form_data, retries=3):
 
         driver.execute_script(form_js)
 
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "ti"))
-        )
-        select_element = driver.find_element(By.ID, "ti")
+        # WebDriverWait(driver, 10).until(
+        #     EC.presence_of_element_located((By.ID, "ti"))
+        # )
+        # select_element = driver.find_element(By.ID, "ti")
         select_range_element = driver.find_element(By.ID, "d")
 
-        # Extract the company name
-        company_name = WebDriverWait(driver, 10).until(
+        company_name = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//h3[@style='margin: 0px;margin-left: 5px;font-size:20px']"))
         ).text
-        
-        # Update the timeframe dropdown
+
         timeframe_mapping = {
             "1 day": "1", "2 days": "2", "3 days": "3", "5 days": "5", "10 days": "10",
             "1 month": "22", "2 months": "44", "3 months": "66", "4 months": "91",
             "6 months": "121", "9 months": "198", "1 year": "252", "2 years": "504",
             "3 years": "756", "5 years": "1008", "8 years": "1764", "All Data": "5000"
         }
-        select = Select(select_element)
-        select.select_by_value(timeframe_mapping.get(timeframe, "5000"))
+        # select = Select(select_element)
+        # select.select_by_value(timeframe_mapping.get(timeframe, "5000"))
 
-        # Update the range dropdown
         range_mapping = {
             "Daily": "d", "Weekly": "w", "Monthly": "m", "1 Minute": "1_minute",
             "2 Minute": "2_minute", "3 Minute": "3_minute", "5 Minute": "5_minute",
@@ -179,26 +177,33 @@ def get_image_from_link(driver, url, timeframe, s_range, form_data, retries=3):
             "75 Minute": "75_minute", "125 Minute": "125_minute", "1 Hour": "60_minute",
             "2 Hour": "120_minute", "3 Hour": "180_minute", "4 Hour": "240_minute"
         }
-        select_Range = Select(select_range_element)
-        select_Range.select_by_value(range_mapping.get(s_range, "d"))
+        # select_Range = Select(select_range_element)
+        # select_Range.select_by_value(range_mapping.get(s_range, "d"))
 
+        try:
+            Select(driver.find_element(By.ID, "ti")).select_by_value(timeframe_mapping.get(timeframe, "5000"))
+            Select(driver.find_element(By.ID, "d")).select_by_value(range_mapping.get(s_range, "d"))
+        except NoSuchElementException:
+            print("Element not found" + str(NoSuchElementException))
+            return None, None
 
         # Click the 'Update' button
-        update_button = driver.find_element(By.ID, "innerb")
-        update_button.click()
-
-        # Switch to the iframe containing the chart
-        iframe = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "ChartImage"))
-        )
-        driver.switch_to.frame(iframe)
-
-        # Retry mechanism to find and retrieve the chart image
+        # update_button = driver.find_element(By.ID, "innerb")
+        # update_button.click()
+        driver.find_element(By.ID, "innerb").click()
+        try:
+          iframe = WebDriverWait(driver, 5).until(
+              EC.presence_of_element_located((By.ID, "ChartImage"))
+          )
+          driver.switch_to.frame(iframe)
+        except TimeoutException:
+          print("No more pages or an error occurred:", TimeoutException)
+          return None, None
         for attempt in range(retries):
             try:
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.TAG_NAME, "body"))
-                )
+                # WebDriverWait(driver, 10).until(
+                #     EC.presence_of_element_located((By.TAG_NAME, "body"))
+                # )
 
                 # Extract the innerHTML
                 body_html = driver.execute_script("return document.body.innerHTML;")
@@ -213,7 +218,7 @@ def get_image_from_link(driver, url, timeframe, s_range, form_data, retries=3):
             except Exception as e:
                 if attempt > 1:
                     print(f"Attempt {attempt + 1} failed: {e}. Retrying...")
-                time.sleep(5)
+                time.sleep(3)
 
         print("Failed to find image after multiple attempts. Check the HTML structure or regex.")
         return None, None
@@ -222,30 +227,32 @@ def get_image_from_link(driver, url, timeframe, s_range, form_data, retries=3):
         print("Error:", e)
         return None, None
 
-
 # Function to process each URL and generate PDF
-def process_link(url, Period, Range, form_data):
+def process_link(driver, results, Period, Range, form_data, max_retries=3):
+  data = []
+  index = 1
+  for url in results:
     try:
-        driver = web_driver()
-        print(f"Processing URL: {url}")
-        company_name, image_data = get_image_from_link(driver, url, Period, Range, form_data)
-        driver.quit()
-        if company_name and image_data:
-            img_data = base64.b64decode(image_data)
-            image = PILImage.open(BytesIO(img_data))
-            return company_name, image
+      company_name, image_data = get_image_from_link(driver, url, Period, Range, form_data)
+      print(f"{index}.{company_name} [{url}]")
+      if company_name and image_data:
+          img_data = base64.b64decode(image_data)
+          image = PILImage.open(BytesIO(img_data))
+          data.append({"company_name": company_name, "image": image})
+          index = index + 1
     except Exception as e:
         print(f"Error processing {url}: {e}")
-    return None, None
+        time.sleep(5)
+        pass
+  return data
 
 
-# Main function
 async def main(Screener_url, Period, Range, form_data):
-
     driver = web_driver()
     driver.get(Screener_url)
     results = get_url_and_index(driver)
     print("Total No of URLs is " + str(len(results)))
+    pdata = process_link(driver, results, Period, Range, form_data)
     driver.quit()
 
     base_path = "/content"
@@ -256,46 +263,38 @@ async def main(Screener_url, Period, Range, form_data):
     c = canvas.Canvas(output_pdf, pagesize=A4)
     a4_width, a4_height = A4
 
-    # Increase the number of threads based on the number of URLs
-    num_threads = min(len(results), 10)
+    for xdata in pdata:
+      company_name = xdata.get("company_name")
+      image = xdata.get("image")
+      try:
+        if company_name and image:
+            print(company_name)
+            temp_image_path = f"/content/temp_image_{company_name}.png"
+            image.save(temp_image_path)
+            image_ratio = image.width / image.height
+            a4_ratio = a4_width / a4_height
+            if image_ratio > a4_ratio:
+                scaled_width = a4_width
+                scaled_height = a4_width / image_ratio
+            else:
+                scaled_height = a4_height
+                scaled_width = a4_height * image_ratio
 
-    with ThreadPoolExecutor(max_workers=num_threads) as executor:
-        futures = [executor.submit(process_link, url, Period, Range, form_data) for url in results]
-        for future in as_completed(futures, timeout=300):
-          try:
-            company_name, image = future.result()
-            if is_colab():
-              from google.colab import output, files
-              output.clear()
-            if company_name and image:
-                print(company_name)
-                temp_image_path = f"/content/temp_image_{company_name}.png"
-                image.save(temp_image_path)
-                image_ratio = image.width / image.height
-                a4_ratio = a4_width / a4_height
-                if image_ratio > a4_ratio:
-                    scaled_width = a4_width
-                    scaled_height = a4_width / image_ratio
-                else:
-                    scaled_height = a4_height
-                    scaled_width = a4_height * image_ratio
-
-                page_height = scaled_height + 40
-                c.setPageSize((a4_width, page_height))
-                c.setFont("Helvetica", 12)
-                c.drawCentredString(a4_width / 2, page_height - 30, company_name)
-                x_offset = (a4_width - scaled_width) / 2
-                y_offset = (page_height - scaled_height - 40) / 2
-                c.drawImage(temp_image_path, x_offset, y_offset, width=scaled_width, height=scaled_height)
-                c.showPage()
-          except TimeoutError:
-            print("A thread took too long and was skipped.")
-
+            page_height = scaled_height + 40
+            c.setPageSize((a4_width, page_height))
+            c.setFont("Helvetica", 12)
+            c.drawCentredString(a4_width / 2, page_height - 30, company_name)
+            x_offset = (a4_width - scaled_width) / 2
+            y_offset = (page_height - scaled_height - 40) / 2
+            c.drawImage(temp_image_path, x_offset, y_offset, width=scaled_width, height=scaled_height)
+            c.showPage()
+      except TimeoutError:
+        print("Error", TimeoutError)
     c.save()
+    
     if is_colab():
         from google.colab import files, output
         output.clear()
-        # Markdown message
         markdown_message = f"""
         **Date**: {current_datetime}
         """
@@ -304,4 +303,3 @@ async def main(Screener_url, Period, Range, form_data):
 
     else:
         print(f"PDF saved at {output_pdf}")
-
