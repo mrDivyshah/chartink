@@ -299,7 +299,6 @@ async def main(Screener_url, Period, Range, form_data):
             c.showPage()
       except TimeoutError:
         print("Error", TimeoutError)
-      break
     c.save()
 
     if is_colab():
