@@ -249,7 +249,6 @@ def process_link(driver, results, Period, Range, form_data, max_retries=3):
           image = PILImage.open(BytesIO(img_data))
           data.append({"company_name": company_name, "image": image})
           index = index + 1
-          break
     except Exception as e:
         print(f"Error processing {url}: {e}")
         time.sleep(5)
