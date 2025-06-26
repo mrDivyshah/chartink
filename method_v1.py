@@ -307,7 +307,8 @@ async def main(Screener_url, Period, Range, form_data):
         markdown_message = f"""
         **Date**: {current_datetime}
         """
-        await send_pdf_with_markdown(874628419, output_pdf, markdown_message)
+        await send_pdf_with_markdown(874628419, output_pdf, markdown_message) # maulik bhai
+        await send_pdf_with_markdown(1209634176, output_pdf, markdown_message) # maulik bhai new 
         return output_pdf
 
     else:
